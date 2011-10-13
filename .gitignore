@@ -1,3 +1,5 @@
 *.class
 build*
 /Robot/nbproject/private/
+/PenO3PlatinumClient/nbproject/private/
+/PenO3PlatinumClient/dist/
