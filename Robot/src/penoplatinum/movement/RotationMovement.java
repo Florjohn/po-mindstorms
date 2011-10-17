@@ -3,6 +3,7 @@ package penoplatinum.movement;
 import lejos.nxt.*;
 
 public class RotationMovement implements IMovement {
+    
 
     public int SPEEDFORWARD = 400;
     public int SPEEDTURN = 400;

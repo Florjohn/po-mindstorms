@@ -106,7 +106,7 @@ public class LineFollower
 			}
 		    
 			// All lights reading white: finds the line
-			else if (L > 30 && C > 30 && R > 30){
+                    else if (L > 30 && C > 30 && R > 30){
 			    LCD.drawString("WHITE", 0,1);
 
 			    // iterating loops that cause the robot to change the direction.
