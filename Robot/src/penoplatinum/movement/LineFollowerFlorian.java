@@ -39,15 +39,20 @@ public class LineFollowerFlorian {
         CalibrateLightSensor();
         while (true) {
             boolean black = LineDeterminer();
-            lastLightValue = light.readValue();
-                if (checkOnLine(black,0.2f)) {
-                    while ( checkOnLine(black,0.10f)) {
-                        agent.TurnOnSpotCCW(10);
-                        lastLightValue = light.readValue();
-                        if (checkOnLine(black, 0.15f)) {
-                            agent.TurnOnSpotCCW(-15);
+            lastLightValue = light.readNormalizedValue();
+               if (checkNotOnLine(black)) {
+                   int rotate = 5; 
+                   int whileCounter=0;
+                   while ( checkNotOnLine(black)&&whileCounter!=9 ) {
+                        agent.TurnOnSpotCCW(rotate);
+                        lastLightValue = light.readNormalizedValue();
+                        rotate *=-2;
+                        whileCounter++;
+                        if(whileCounter==4){
+                            agent.TurnOnSpotCCW(-60);
+                            rotate=-5;
                         }
-                        lastLightValue= light.readValue();
+                        
                     }
                 } else {
                     agent.MoveStraight(100);
@@ -57,13 +62,13 @@ public class LineFollowerFlorian {
         }
     }
 
-    private boolean checkOnLine(boolean black, float threshold) {
+    private boolean checkNotOnLine(boolean black) {
         
         if(black){
-            return lastLightValue > LineThresHold*threshold;
+            return lastLightValue > 40;
         }
         else{
-            return lastLightValue< LineThresHold*(1-threshold);
+            return lastLightValue< 60;
                   
         }
     }
@@ -71,8 +76,12 @@ public class LineFollowerFlorian {
     public boolean LineDeterminer() {
         // determines if the Line is white or black
         if (LineThresHold < platformThresHold) {
+            light.setLow(LineThresHold);
+            light.setHigh(platformThresHold);
             return false;
         }
+        light.setLow(platformThresHold);
+        light.setHigh(LineThresHold);
         return true;
     }
     
