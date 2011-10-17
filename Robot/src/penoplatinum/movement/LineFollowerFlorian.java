@@ -3,6 +3,8 @@
  */
 package PenoPlatinum.movement;
 
+import java.io.*;
+import lejos.nxt.*;
 import lejos.nxt.LightSensor;
 import lejos.nxt.SensorPort;
 import penoplatinum.movement.RotationMovement;
@@ -63,7 +65,7 @@ public class LineFollowerFlorian {
     }
 
     private boolean checkNotOnLine(boolean black) {
-        
+        LCD.drawInt(lastLightValue, 0, 0);
         if(black){
             return lastLightValue > 40;
         }
