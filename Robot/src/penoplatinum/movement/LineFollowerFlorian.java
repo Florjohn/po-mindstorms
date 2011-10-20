@@ -27,35 +27,27 @@ public class LineFollowerFlorian {
 
     public void CalibrateLightSensor() {
         //calibrating Line vs Platform  
-
         LineThresHold = light.readValue();
         agent.TurnOnSpotCCW(20);
         platformThresHold = light.readValue();
         agent.TurnOnSpotCCW(-40);
         platformThresHold = (platformThresHold + light.readValue()) / 2;
         agent.TurnOnSpotCCW(20);
+        if(LineDeterminer()){
+           light.setLow(LineThresHold);
+        }
+        else{
+            light.setHigh(LineThresHold);
+        }
 
     }
 
     public void ActionLineFollower() {
         CalibrateLightSensor();
         while (true) {
-            boolean black = LineDeterminer();
             lastLightValue = light.readNormalizedValue();
-               if (checkNotOnLine(black)) {
-                   int rotate = 5; 
-                   int whileCounter=0;
-                   while ( checkNotOnLine(black)&&whileCounter!=9 ) {
-                        agent.TurnOnSpotCCW(rotate);
-                        lastLightValue = light.readNormalizedValue();
-                        rotate *=-2;
-                        whileCounter++;
-                        if(whileCounter==4){
-                            agent.TurnOnSpotCCW(-60);
-                            rotate=-5;
-                        }
-                        
-                    }
+               if (checkNotOnLine(LineDeterminer())) {
+                   LineFinder();
                 } else {
                     agent.MoveStraight(100);
                 }
@@ -67,24 +59,31 @@ public class LineFollowerFlorian {
     private boolean checkNotOnLine(boolean black) {
         LCD.drawInt(lastLightValue, 0, 0);
         if(black){
-            return lastLightValue > 40;
+            return lastLightValue > 30 && checkOnPlatform();
         }
-        else{
-            return lastLightValue< 60;
+        else {
+            return lastLightValue< 70 && checkOnPlatform();
                   
         }
+    }
+    
+    private boolean checkOnPlatform(){  
+        return (lastLightValue<platformThresHold*1.3 || lastLightValue>platformThresHold*0.7);      
     }
 
     public boolean LineDeterminer() {
         // determines if the Line is white or black
-        if (LineThresHold < platformThresHold) {
-            light.setLow(LineThresHold);
-            light.setHigh(platformThresHold);
-            return false;
+      return (LineThresHold < platformThresHold);
+    }
+    
+    public void LineFinder(){
+        boolean black = LineDeterminer();
+        int rotate = 5;
+        while (checkNotOnLine(black)) {
+            agent.TurnOnSpotCCW(rotate);
+            lastLightValue = light.readNormalizedValue();
+            rotate *= -1.1;
         }
-        light.setLow(platformThresHold);
-        light.setHigh(LineThresHold);
-        return true;
     }
     
 }
