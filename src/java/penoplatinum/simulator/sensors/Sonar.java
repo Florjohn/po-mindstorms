@@ -18,12 +18,11 @@ public class Sonar implements Sensor{
     int angle = (int) simEntity.getSensorValues()[Model.M3] + simEntity.getAngle();
     Point tile = simEntity.getCurrentTileCoordinates();
     Point pos = simEntity.getCurrentOnTileCoordinates();
-    int minimum = sim.getFreeDistance(tile, pos, (angle + 360) % 360);
+    int minimum = sim.getDistanceToWall(tile, pos, (angle + 360) % 360);
     // TODO: reintroduce ? - removed to find Sonar detection bug (xtof)
     // this "abuses" our ability to make many sonar checks at once ?!
      for (int i = -15; i < 16; i++) {
-       int distance = sim.getFreeDistance(tile, pos, (angle+i+360)%360);
-       if(distance)
+       int distance = sim.getDistanceToWall(tile, pos, (angle+i+360)%360);
        minimum = Math.min(minimum, distance);
      }
     // this.sensorValues[Model.S3] = minimum > 90 ? 255 : minimum;

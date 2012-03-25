@@ -111,7 +111,7 @@ public class Simulator {
 
   // determine the distance to the first obstacle in direct line of sight 
   // under a given angle
-  public int getFreeDistance(Point tile, Point pos, int angle) {
+  public int getDistanceToWall(Point tile, Point pos, int angle) {
     int distance = 0;
 
     // find distance to first wall in line of sight

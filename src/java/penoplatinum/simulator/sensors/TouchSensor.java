@@ -19,7 +19,7 @@ public class TouchSensor implements Sensor {
     angle = (simEntity.getAngle() + angle) % 360;
     Point tile = simEntity.getCurrentTileCoordinates();
     Point pos = simEntity.getCurrentOnTileCoordinates();
-    int distance = sim.getFreeDistance(tile, pos, angle);
+    int distance = sim.getDistanceToWall(tile, pos, angle);
 
     /*if (distance < SimulatedEntity.BUMPER_LENGTH_ROBOT) {
       this.sensorValues[sensorPort] = 50;

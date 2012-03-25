@@ -30,7 +30,7 @@ public class IRSensor implements Sensor {
     double dy = sim.getYDistanceToPacman(simEntity);
     double actualAngle = sim.getRelativeAnglePacman(simEntity);
     final int changedOriginVector = (int) (sim.getAngleToNorthPacman(simEntity) + 90) % 360;
-    int distanceToWall = sim.getFreeDistance(simEntity.getCurrentTileCoordinates(), simEntity.getCurrentOnTileCoordinates(), changedOriginVector);
+    int distanceToWall = sim.getDistanceToWall(simEntity.getCurrentTileCoordinates(), simEntity.getCurrentOnTileCoordinates(), changedOriginVector);
     int distanceToPacman = sim.getDistanceToPacman(simEntity);
 
     // checks if the distance to the pacman is higher than 5 meter
