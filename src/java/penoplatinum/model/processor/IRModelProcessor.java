@@ -1,8 +1,10 @@
 package penoplatinum.model.processor;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import penoplatinum.model.GhostModel;
 import penoplatinum.model.GridModelPart;
 import penoplatinum.model.SensorModelPart;
+import penoplatinum.simulator.Bearing;
 import penoplatinum.simulator.Model;
 
 /**
@@ -33,15 +35,20 @@ public class IRModelProcessor extends ModelProcessor {
     }
     int dir = sensor.getSensorValue(Model.S1);
     int dx = 0, dy = 0;
+    int bearing = Bearing.NONE;
+          
     switch (dir) {
       case 2:
         dx = -1;
+        bearing = Bearing.W;
         break;
       case 5:
         dy = -1;
+        bearing = Bearing.N;
         break;
       case 8:
         dx = 1;
+        bearing = Bearing.E;
         break;
       default: 
         grid.setPacManInNext(false, 0, 0);
@@ -59,7 +66,7 @@ public class IRModelProcessor extends ModelProcessor {
       grid.setPacManInNext(false, 0, 0);
       return;
     }
-    if ((grid.getAgent().getBearing() & 1) == 1) { //rottate
+    if ((grid.getAgent().getBearing() & 1) == 1) { //rotate
       int temp = dx;
       dx = -dy;
       dy = temp;
@@ -68,7 +75,10 @@ public class IRModelProcessor extends ModelProcessor {
       dy = -dy;
       dx = -dx;
     }
-//    System.out.println("PACMAN");
+    grid.getCurrentSector().clearWall(bearing);
+    
+  System.out.println(grid.getCurrentSector().getWalls());
     grid.setPacManInNext(true, grid.getAgent().getLeft() + dx, grid.getAgent().getTop() + dy);
+    
   }
 }
