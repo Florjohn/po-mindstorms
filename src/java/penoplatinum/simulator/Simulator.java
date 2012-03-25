@@ -35,30 +35,29 @@ public class Simulator {
   private RobotEntity pacmanEntity;
   private ConcurrentLinkedQueue<String> messageQueue = new ConcurrentLinkedQueue<String>();
   private Runnable stepRunnable;
+  private double circleRadius = 5;
 
-  
-  
   // main constructor, no arguments, Simulator is selfcontained
   public Simulator() {
   }
-
+  
   public void addSimulatedEntity(SimulatedEntity r) {
     robotEntities.add(r);
     view.addRobot(r.getViewRobot());
     r.useSimulator(this);
   }
-
+  
   public RemoteEntity addRemoteEntity(String entityName, int originX, int originY, int originBearing) {
-
+    
     RemoteEntity ent = new RemoteEntity(entityName);
     view.addRobot(ent.getViewRobot());
-
+    
     ent.useSimulator(this);
-
+    
     robotEntities.add(ent);
     remoteEntities.put(entityName, ent);
     ent.setOrigin(originX, originY, originBearing);
-
+    
     return ent;
   }
 
@@ -71,30 +70,31 @@ public class Simulator {
     for (RobotEntity s : robotEntities) {
       view.addRobot(s.getViewRobot());
     }
-    if(pacmanEntity != null){
+    if (pacmanEntity != null) {
       view.addRobot(pacmanEntity.getViewRobot());
     }
     return this;
   }
-
+  
   public double getAngleToNorthPacman(SimulatedEntity simEntity) {
     double angleToNorth = 0;
     double dx = getXDistanceToPacman(simEntity);
     double dy = getYDistanceToPacman(simEntity);
     if (dy != 0) {
-     angleToNorth = Math.atan(dx / dy) / Math.PI * 180;
-     if (dy > 0) {
-       angleToNorth += 180;
-     }
-   } else if (dx > 0) {
-     angleToNorth = 270;
-   } else {
-     angleToNorth = 90;
-   }angleToNorth += 360;
+      angleToNorth = Math.atan(dx / dy) / Math.PI * 180;
+      if (dy > 0) {
+        angleToNorth += 180;
+      }
+    } else if (dx > 0) {
+      angleToNorth = 270;
+    } else {
+      angleToNorth = 90;
+    }
+    angleToNorth += 360;
     angleToNorth %= 360;
     return angleToNorth;
   }
-
+  
   public double getYDistanceToPacman(SimulatedEntity simEntity) {
     double dy = getPacMan().getPosY() - simEntity.getPosY();
     return dy;
@@ -112,14 +112,53 @@ public class Simulator {
   // determine the distance to the first obstacle in direct line of sight 
   // under a given angle
   public int getDistanceToWall(Point tile, Point pos, int angle) {
-    int distance = 0;
-
-    // find distance to first wall in line of sight
+    
     return this.findHitDistance(angle,
             (int) tile.getX(), (int) tile.getY(),
             (int) pos.getX(), (int) pos.getY());
   }
+  
+  public int getFreeDistance(Point tile, Point pos, int angle, SimulatedEntity simEntity) {
+    int minimum = Math.min(getDistanceToWall(tile, pos, angle), getDistanceToPacman(simEntity));
+    return Math.min(minimum, findDistanceToRobot(simEntity,angle));
+    
+    
+  }
 
+  private int findDistanceToRobot(SimulatedEntity simEntity,int angle) {
+    
+    double minDistanceToEntity = 10000;    
+    double x1 = simEntity.getPosX();
+    double y1 = simEntity.getPosY();
+    double m = Math.tan(Math.toRadians(angle));
+    double m2 = Math.pow(m, 2);
+    double a = 1 + Math.pow(m, 2);
+    for (RobotEntity entity : robotEntities) {
+      if(!simEntity.equals(entity)){
+      double x0 = entity.getPosX();
+      double y0 = entity.getPosY();
+      double b = -2 * m2 * x1 + 2 * m * y1 - 2 * x0 - 2 * m * y0;
+      double c = Math.pow(y0, 2) + Math.pow(x0, 2) + Math.pow(circleRadius, 2) + 2 * y1 * y0 + 2 * m * x1 * y0 + Math.pow(y1, 2) + 2 * m * y1 + m2 * Math.pow(x1, 2);
+      if((Math.pow(b, 2)-4*a*c)>=0){
+              double x2 = (Math.pow(b, 2) + Math.sqrt(4 * a * c)) / (2 * a);
+      double x3 = (Math.pow(b, 2) - Math.sqrt(4 * a * c)) / (2 * a);
+      double y2 = m * (x2 - x1) + y1;
+      double y3 = m * (x3 - x2) + y1;
+      double distanceToEntity = TileGeometry.getDistance(x2, y2, new Point((int) x1, (int) y1));
+      double distanceToEntity2 = TileGeometry.getDistance(x3, y3, new Point((int) x1, (int) y1));
+      distanceToEntity = Math.min(distanceToEntity,distanceToEntity2);
+      if (minDistanceToEntity > distanceToEntity) {
+        minDistanceToEntity = distanceToEntity;
+      }
+      }
+      }
+    
+    }
+//    System.out.println(simEntity.getRobot().getName());
+    return (int) minDistanceToEntity;
+    
+  }
+  
   public Tile getCurrentTile(Point tile) {
     return this.map.get((int) tile.getX(), (int) tile.getY());
   }
@@ -142,7 +181,7 @@ public class Simulator {
     Point hit = null;
     do {
       tile = this.map.get(left, top);
-
+      
       if (tile == null) {
         System.out.println(left + " " + top + " " + hit.x + " " + hit.y + " " + angle);
         left++;
@@ -171,7 +210,7 @@ public class Simulator {
       //System.out.println(left + " " + top);
       x = hit.x == 0 ? tile.getSize() : (hit.x == tile.getSize() ? 0 : hit.x);
       y = hit.y == 0 ? tile.getSize() : (hit.y == tile.getSize() ? 0 : hit.y);
-
+      
     } while (!tile.hasWall(bearing));
     return (int) Math.round(dist);
   }
@@ -195,7 +234,7 @@ public class Simulator {
     // Robot's mind.
     return this;
   }
-
+  
   public double getXDistanceToPacman(SimulatedEntity simEntity) {
     double dx = getPacMan().getPosX() - simEntity.getPosX();
     return dx;
@@ -212,8 +251,8 @@ public class Simulator {
    */
   public Simulator run() {
     this.view.showMap(this.map);
-
-
+    
+    
     while (true) {
       this.step();
       if (false) {
@@ -224,7 +263,7 @@ public class Simulator {
     this.view.log("");
     return this;
   }
-
+  
   private void step() {
     for (RobotEntity robotEntity : robotEntities) {
       robotEntity.step();
@@ -237,18 +276,18 @@ public class Simulator {
 //    Utils.Sleep(20);
 
   }
-
+  
   boolean hasTile(double positionX, double positionY) {
     int x = (int) positionX / this.getTileSize() + 1;
     int y = (int) positionY / this.getTileSize() + 1;
     return map.exists(x, y);
   }
-
+  
   boolean goesThroughWallX(SimulatedEntity entity, double dx) {
     double positionX = entity.getPosX();
     double positionY = entity.getPosY();
     double LENGTH_ROBOT = entity.LENGTH_ROBOT;
-
+    
     double posXOnTile = positionX % this.getTileSize();
     int tileX = (int) positionX / this.getTileSize() + 1;
     int tileY = (int) positionY / this.getTileSize() + 1;
@@ -257,52 +296,53 @@ public class Simulator {
             || (this.map.get(tileX, tileY).hasWall(Bearing.E)
             && dx > 0 && (posXOnTile + dx > this.getTileSize() - LENGTH_ROBOT));
   }
-
+  
   boolean goesThroughWallY(SimulatedEntity entity, double dy) {
     double positionX = entity.getPosX();
     double positionY = entity.getPosY();
     double LENGTH_ROBOT = entity.LENGTH_ROBOT;
-
+    
     double posYOnTile = positionY % this.getTileSize();
     int tileX = (int) positionX / this.getTileSize() + 1;
     int tileY = (int) positionY / this.getTileSize() + 1;
-
+    
     return (this.map.get(tileX, tileY).hasWall(Bearing.N)
             && dy > 0 && (posYOnTile - dy < LENGTH_ROBOT))
             || (this.map.get(tileX, tileY).hasWall(Bearing.S)
             && dy < 0 && (posYOnTile - dy > this.getTileSize() - LENGTH_ROBOT));
   }
-
+  
   public RobotEntity getPacMan() {
     return this.pacmanEntity;
   }
-
+  
   public void setPacmanEntity(RobotEntity pacmanEntity) {
     this.pacmanEntity = pacmanEntity;
     view.addRobot(pacmanEntity.getViewRobot());
   }
-
+  
   public int getTileSize() {
     return map.getFirst().getSize();
   }
-
+  
   public void useStepRunnable(Runnable runnable) {
     stepRunnable = runnable;
   }
- 
-  public int getDistanceToPacman(SimulatedEntity simEntity){
-   // calculates the angles and distances needed
+  
+  public int getDistanceToPacman(SimulatedEntity simEntity) {
+    // calculates the angles and distances needed
     RobotEntity pacman = getPacMan();
-    if(pacman == null){
+    if (pacman == null) {
       return 0;
     }
     double dx = getXDistanceToPacman(simEntity);
-    double dy = getYDistanceToPacman( simEntity);
+    double dy = getYDistanceToPacman(simEntity);
     int distanceToPacman = (int) Math.sqrt(dx * dx + dy * dy);
     return distanceToPacman;
-    }
-  public double getRelativeAnglePacman(SimulatedEntity simEntity){
+  }
+
+  public double getRelativeAnglePacman(SimulatedEntity simEntity) {
     double angleToNorth = getAngleToNorthPacman(simEntity);
-   return (angleToNorth - simEntity.getDir() + 360) % 360;
+    return (angleToNorth - simEntity.getDir() + 360) % 360;
   }
 }
