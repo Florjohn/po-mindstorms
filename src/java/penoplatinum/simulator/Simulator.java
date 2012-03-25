@@ -77,6 +77,29 @@ public class Simulator {
     return this;
   }
 
+  public double getAngleToNorthPacman(SimulatedEntity simEntity) {
+    double angleToNorth = 0;
+    double dx = getXDistanceToPacman(simEntity);
+    double dy = getYDistanceToPacman(simEntity);
+    if (dy != 0) {
+     angleToNorth = Math.atan(dx / dy) / Math.PI * 180;
+     if (dy > 0) {
+       angleToNorth += 180;
+     }
+   } else if (dx > 0) {
+     angleToNorth = 270;
+   } else {
+     angleToNorth = 90;
+   }angleToNorth += 360;
+    angleToNorth %= 360;
+    return angleToNorth;
+  }
+
+  public double getYDistanceToPacman(SimulatedEntity simEntity) {
+    double dy = getPacMan().getPosY() - simEntity.getPosY();
+    return dy;
+  }
+
   /**
    * A map can be provided. This will determine what information the 
    * Simulator will send to the robot's sensors, using the SimulationRobotAPI.
@@ -173,6 +196,11 @@ public class Simulator {
     return this;
   }
 
+  public double getXDistanceToPacman(SimulatedEntity simEntity) {
+    double dx = getPacMan().getPosX() - simEntity.getPosX();
+    return dx;
+  }
+
   // at the end of a step, refresh the visual representation of our world
   private void refreshView() {
     this.view.updateRobots();
@@ -260,5 +288,21 @@ public class Simulator {
 
   public void useStepRunnable(Runnable runnable) {
     stepRunnable = runnable;
+  }
+ 
+  public int getDistanceToPacman(SimulatedEntity simEntity){
+   // calculates the angles and distances needed
+    RobotEntity pacman = getPacMan();
+    if(pacman == null){
+      return 0;
+    }
+    double dx = getXDistanceToPacman(simEntity);
+    double dy = getYDistanceToPacman( simEntity);
+    int distanceToPacman = (int) Math.sqrt(dx * dx + dy * dy);
+    return distanceToPacman;
+    }
+  public double getRelativeAnglePacman(SimulatedEntity simEntity){
+    double angleToNorth = getAngleToNorthPacman(simEntity);
+   return (angleToNorth - simEntity.getDir() + 360) % 360;
   }
 }

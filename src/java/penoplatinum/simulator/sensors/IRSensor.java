@@ -5,6 +5,14 @@ import penoplatinum.simulator.Sensor;
 import penoplatinum.simulator.SimulatedEntity;
 import penoplatinum.simulator.Simulator;
 
+/**
+ *
+ * IRSensor
+ *
+ * implementatie van de IRSensor voor de simulator, om pacman te herkennen.
+ *
+ * @author: Team Platinum
+ */
 public class IRSensor implements Sensor {
 
   Simulator sim;
@@ -15,28 +23,15 @@ public class IRSensor implements Sensor {
 
     // calculates the angles and distances needed
     RobotEntity pacman = sim.getPacMan();
-    if(pacman == null){
+    if (pacman == null) {
       return 0;
     }
-    double dx = pacman.getPosX() - simEntity.getPosX();
-    double dy = pacman.getPosY() - simEntity.getPosY();
-    double angleToNorth = 0;
-    if (dy != 0) {
-      angleToNorth = Math.atan(dx / dy) / Math.PI * 180;
-      if (dy > 0) {
-        angleToNorth += 180;
-      }
-    } else if (dx > 0) {
-      angleToNorth = 270;
-    } else {
-      angleToNorth = 90;
-    }
-    angleToNorth += 360;
-    angleToNorth %= 360;
-    double actualAngle = (angleToNorth - simEntity.getDir() + 360) % 360;
-    final int changedOriginVector = (int) (angleToNorth+90)%360;
+    double dx = sim.getXDistanceToPacman(simEntity);
+    double dy = sim.getYDistanceToPacman(simEntity);
+    double actualAngle = sim.getRelativeAnglePacman(simEntity);
+    final int changedOriginVector = (int) (sim.getAngleToNorthPacman(simEntity) + 90) % 360;
     int distanceToWall = sim.getFreeDistance(simEntity.getCurrentTileCoordinates(), simEntity.getCurrentOnTileCoordinates(), changedOriginVector);
-    int distanceToPacman = (int) Math.sqrt(dx * dx + dy * dy);
+    int distanceToPacman = sim.getDistanceToPacman(simEntity);
 
     // checks if the distance to the pacman is higher than 5 meter
     if (distanceToPacman > 500) {
@@ -47,7 +42,7 @@ public class IRSensor implements Sensor {
     if (distanceToWall <= distanceToPacman) {
       return 0;
     }
-    int angle = (int) ((-actualAngle + 165+360) % 360 / 30);
+    int angle = (int) ((-actualAngle + 165 + 360) % 360 / 30);
     if (angle > 9) {
       return 0;
     }

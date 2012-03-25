@@ -214,7 +214,7 @@ public class GridModelPart implements IModelPart {
         p = new PacmanAgent();
       }
 
-      Sector s = this.getGrid().getSector(x, y);
+      Sector s = this.getGrid().getOrCreateSector(x, y);
       s.put(p, 0);
       pacmanPositionChanged = true;
     }

@@ -23,6 +23,7 @@ public class Sonar implements Sensor{
     // this "abuses" our ability to make many sonar checks at once ?!
      for (int i = -15; i < 16; i++) {
        int distance = sim.getFreeDistance(tile, pos, (angle+i+360)%360);
+       if(distance)
        minimum = Math.min(minimum, distance);
      }
     // this.sensorValues[Model.S3] = minimum > 90 ? 255 : minimum;

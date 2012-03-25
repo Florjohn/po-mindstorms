@@ -104,7 +104,7 @@ public class GhostNavigator implements Navigator {
     if((int)(r.nextDouble()*5)==3) { forMove = Bearing.NONE; }
 
     if(forMove <= Bearing.NONE) {
-      this.plan.add(GhostAction.NONE);
+      this.plan.add(GhostAction.NONE); return;
     }
     
     this.createActions(forMove);
