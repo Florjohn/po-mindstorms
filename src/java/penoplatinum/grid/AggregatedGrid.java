@@ -5,7 +5,6 @@ import java.util.List;
 import penoplatinum.util.Bearing;
 import penoplatinum.util.Point;
 import penoplatinum.util.TransformationTRT;
-import sun.security.krb5.internal.crypto.Aes128;
 
 /**
  * AggregatedGrid
@@ -236,6 +235,11 @@ public class AggregatedGrid implements Grid {
 
   @Override
   public int getSize() {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public boolean hasAgentOn(Sector sector, Class type) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
