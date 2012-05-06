@@ -153,14 +153,14 @@ public class TransformedGrid implements Grid {
     return grid.getAgent(name);
   }
 
-
   @Override
   public Point getPositionOf(Agent agent) {
     Point pos = grid.getPositionOf(agent);
-    if (pos == null) return null;
-    
+    if (pos == null)
+      return null;
+
     transformation.transform(pos);
-    
+
     return pos;
   }
 
@@ -168,21 +168,25 @@ public class TransformedGrid implements Grid {
   public Agent getAgentAt(Point position, Class cls) {
     transformation.inverseTransform(position);
 
-    Agent a = grid.getAgentAt(position,cls);
+    Agent a = grid.getAgentAt(position, cls);
 
     transformation.transform(position);
     return a;
   }
-  
+
   @Override
   public Iterable<Agent> getAgents() {
     return grid.getAgents();
   }
+  private Point minBuf = new Point(0, 0);
+  private Point maxBuf = new Point(0, 0);
 
   private int getBoundAt(Bearing b) {
 
-    Point min = new Point(grid.getMinLeft(), grid.getMinTop());
-    Point max = new Point(grid.getMaxLeft(), grid.getMaxTop());
+    Point min = minBuf;
+    Point max = maxBuf;
+    minBuf.set(grid.getMinLeft(), grid.getMinTop());
+    maxBuf.set(grid.getMaxLeft(), grid.getMaxTop());
 
     transformation.transform(min);
     transformation.transform(max);
@@ -252,5 +256,4 @@ public class TransformedGrid implements Grid {
   public String toString() {
     return GridUtils.createGridSectorsString(this);
   }
-
 }
