@@ -11,6 +11,8 @@ package penoplatinum.navigator;
  * @author: Team Platinum
  */
 
+import penoplatinum.grid.Grid;
+import penoplatinum.grid.agent.Agent;
 import penoplatinum.model.Model;
 
 import penoplatinum.navigator.mode.DiscoverHillClimbingNavigatorMode;

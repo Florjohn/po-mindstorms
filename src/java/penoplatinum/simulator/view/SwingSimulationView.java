@@ -98,10 +98,16 @@ public class SwingSimulationView extends JFrame implements SimulationView {
       System.err.println(e);
     }
   }
-  
+  private int counter = 0;
   private void updateGrids() {
+    counter++;
+    if(counter<30){
+      return;
+    }
+    counter=0;
     for(SwingGridView gridView : this.grids) {
        gridView.refresh();
+       
     }
   }
 

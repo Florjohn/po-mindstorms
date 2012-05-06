@@ -28,6 +28,7 @@ public class ChaseHillClimbingNavigatorMode extends HillClimbingNavigatorMode {
 
   public ChaseHillClimbingNavigatorMode(Model model) {
     super(model);
+    
     this.grids.onlyApplyCollaborateDiffusionOnPacman();
   }
 

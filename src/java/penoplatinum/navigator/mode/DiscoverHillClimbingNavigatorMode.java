@@ -16,6 +16,7 @@ public class DiscoverHillClimbingNavigatorMode extends HillClimbingNavigatorMode
 
   public DiscoverHillClimbingNavigatorMode(Model model) {
     super(model);
+    
     this.grids.onlyApplyCollaborateDiffusionOnUnknownSectors();
   }
 
